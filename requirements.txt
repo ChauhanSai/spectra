@@ -1,0 +1,4 @@
+kagglehub
+pillow
+dotenv
+google-genai
