@@ -1,0 +1,11 @@
+image_path,true_label,baseline_pred,injected_pred,flip,targeted_success
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/1.jpg,no_tumor,pituitary_tumor,no_tumor,True,True
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/2.jpg,no_tumor,no_tumor,no_tumor,False,True
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/3.jpg,no_tumor,no_tumor,no_tumor,False,True
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/4.jpg,no_tumor,unknown,glioma_tumor,True,False
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/5.jpg,no_tumor,unknown,unknown,False,False
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/6.jpg,no_tumor,unknown,unknown,False,False
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/7.jpg,no_tumor,unknown,unknown,False,False
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/8.jpg,no_tumor,unknown,unknown,False,False
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/image (10).jpg,no_tumor,unknown,unknown,False,False
+/Users/shriya/Documents/spectra-mri/data/mri/Training/no_tumor/image (11).jpg,no_tumor,unknown,unknown,False,False
