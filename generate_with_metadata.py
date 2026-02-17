@@ -7,7 +7,7 @@ from PIL import PngImagePlugin
 path = kagglehub.dataset_download("asaniczka/mammals-image-classification-dataset-45-animals")
 
 # Create a folder where the modified images will be saved
-target_folder = os.path.expanduser("~/.cache/injected_images")
+target_folder = os.path.expanduser("~/.cache/injected_images") # please change the folder so that there is no mixup with the other methods
 os.makedirs(target_folder, exist_ok=True)
 
 # Prompt to inject
