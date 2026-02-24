@@ -93,7 +93,7 @@ def inject_text(
         pixels = np.array(base.convert("RGB"))
         bg_rgb = _sample_region_rgb(pixels, x, y, tw, th, w, h)
         r, g, b = _pick_text_color(bg_rgb, contrast)
-        alpha = 255 if contrast == "high_contrast" else int(max(0.0, min(1.0, opacity)) * 255)  # medium/low use opacity
+        alpha = 255 if contrast == "high_contrast" else int(max(0.0, min(1.0, opacity)) * 255)
         fill = (r, g, b, alpha)
     else:
         alpha = int(max(0.0, min(1.0, opacity)) * 255)
