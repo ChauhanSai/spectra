@@ -3,3 +3,4 @@ __pycache__/
 injected_images/
 results/
 *.pyc
+requirements.txt
