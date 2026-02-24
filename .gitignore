@@ -3,5 +3,4 @@
 __pycache__/
 *.pyc
 *.csv
-data/mri
 saliency.py

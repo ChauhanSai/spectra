@@ -14,10 +14,21 @@ def extract_label(text: str) -> str:
     if not (text or isinstance(text, str)):
         return "unknown"
     normalized = _normalize(text)
+    last_pos = -1
+    found = None
     for class_name in CLASSES:
-        if class_name in normalized:
-            return class_name
+        pos = normalized.find(class_name)
+        if pos != -1 and pos > last_pos:
+            last_pos = pos
+            found = class_name
+    if found is not None:
+        return found
+    norm_no_underscore = normalized.replace("_", "")
     for class_name in CLASSES:
-        if class_name.replace("_", "") in normalized.replace("_", ""):
-            return class_name
-    return "unknown"
+        cn_flat = class_name.replace("_", "")
+        if cn_flat in norm_no_underscore:
+            pos = norm_no_underscore.find(cn_flat)
+            if pos > last_pos:
+                last_pos = pos
+                found = class_name
+    return found if found is not None else "unknown"
