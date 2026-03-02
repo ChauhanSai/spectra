@@ -4,3 +4,4 @@ injected_images/
 results/
 *.pyc
 requirements.txt
+defense/

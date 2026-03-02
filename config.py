@@ -1,15 +1,18 @@
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv(Path(__file__).parent / ".env")
 
-# ── API Keys (only needed for cloud backends) ──────────────────────
+# ── Environment Detection ──────────────────────────────────────
+IS_COLAB = "google.colab" in sys.modules or Path("/content").exists()
+
+# ── API Keys (only needed for cloud backends) ──────────────────
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
-# ── Model Registry ─────────────────────────────────────────────────
-# Each entry: friendly name → {backend, model string}
-# "backend" is either "ollama" (local) or "groq" (cloud)
+# ── Model Registry ─────────────────────────────────────────────
+# backend: "ollama" (local server), "groq" (cloud), "transformers" (HF direct)
 MODEL_REGISTRY = {
     # Ollama models — local, no API key, no rate limits
     "deepseek-ocr":    {"backend": "ollama", "model": "deepseek-r1"},
@@ -24,22 +27,34 @@ MODEL_REGISTRY = {
     "qwen2.5vl-3b":    {"backend": "ollama", "model": "qwen2.5vl:3b"},
     # Cloud models — require API key
     "llama4-scout":    {"backend": "groq",   "model": "meta-llama/llama-4-scout-17b-16e-instruct"},
+    # Defended model — HuggingFace Transformers + defensive tokens
+    "qwen2.5vl-3b-defended": {
+        "backend": "transformers",
+        "model": "qwen2.5vl-3b-defended",
+        "hf_model": "Qwen/Qwen2.5-VL-3B-Instruct",
+    },
 }
 
 DEFAULT_MODEL = "llama4-scout"
 
 OLLAMA_BASE_URL = "http://localhost:11434/v1"
 
-# ── Directories ────────────────────────────────────────────────────
+# ── Directories ────────────────────────────────────────────────
 PROJECT_DIR = Path(__file__).parent
-DATASET_DIR = Path(r"c:\Users\1moon\Downloads\archive\Garbage classification\Garbage classification")
+if IS_COLAB:
+    DATASET_DIR = Path("/content/dataset/Garbage classification/Garbage classification")
+else:
+    DATASET_DIR = Path(r"c:\Users\1moon\Downloads\archive\Garbage classification\Garbage classification")
+
 INJECTED_DIR = PROJECT_DIR / "injected_images"
 RESULTS_DIR = PROJECT_DIR / "results"
+DEFENSE_DIR = PROJECT_DIR / "defense"
 
 INJECTED_DIR.mkdir(exist_ok=True)
 RESULTS_DIR.mkdir(exist_ok=True)
+DEFENSE_DIR.mkdir(exist_ok=True)
 
-# ── Experiment Parameters ──────────────────────────────────────────
+# ── Experiment Parameters ──────────────────────────────────────
 CATEGORIES = ["cardboard", "glass", "metal", "paper", "plastic", "trash"]
 
 INJECTION_PROMPT = (
@@ -52,3 +67,7 @@ ALPHA_LEVELS = [60, 120, 180, 255]
 SAMPLE_SIZE = 10
 
 API_DELAY_SECONDS = 3
+
+# ── Defense Parameters ─────────────────────────────────────────
+DEFENSE_MODEL = "Qwen/Qwen2.5-VL-3B-Instruct"
+DEFENSE_NUM_TOKENS = 10

@@ -6,6 +6,9 @@ from openai import OpenAI
 
 import config
 
+# ── Lazy-loaded defended model (heavy, only load when needed) ──
+_defended_model = None
+
 
 def get_client(model_key=None):
     """Return the appropriate API client for the given model key."""
@@ -16,7 +19,7 @@ def get_client(model_key=None):
     if backend == "ollama":
         return OpenAI(
             base_url=config.OLLAMA_BASE_URL,
-            api_key="ollama",  # required by client but unused
+            api_key="ollama",
         )
     elif backend == "groq":
         if not config.GROQ_API_KEY:
@@ -25,14 +28,43 @@ def get_client(model_key=None):
                 "  GROQ_API_KEY=your-key-here"
             )
         return Groq(api_key=config.GROQ_API_KEY)
+    elif backend == "transformers":
+        return _get_defended_model(model_key)
     else:
         raise ValueError(f"Unknown backend: {backend}")
 
 
-def get_api_delay(model_key):
-    """Ollama runs locally so no delay needed; cloud APIs need throttling."""
+def _get_defended_model(model_key):
+    """Lazy-load the DefensiveTokenModel (only once)."""
+    global _defended_model
+    if _defended_model is not None:
+        return _defended_model
+
+    from defend import DefensiveTokenModel
+
     model_info = config.MODEL_REGISTRY[model_key]
-    if model_info["backend"] == "ollama":
+    hf_model = model_info.get("hf_model", config.DEFENSE_MODEL)
+
+    _defended_model = DefensiveTokenModel(
+        model_name=hf_model,
+        num_tokens=config.DEFENSE_NUM_TOKENS,
+    )
+
+    # Load trained embeddings if available
+    embed_path = config.DEFENSE_DIR / "optimized_embeddings.pt"
+    if embed_path.exists():
+        _defended_model.load_embeddings(embed_path)
+    else:
+        print("  ⚠ WARNING: No trained defensive embeddings found!")
+        print(f"    Run train_defense.py first, or place embeddings at {embed_path}")
+
+    return _defended_model
+
+
+def get_api_delay(model_key):
+    """Ollama and Transformers run locally — no delay needed."""
+    model_info = config.MODEL_REGISTRY[model_key]
+    if model_info["backend"] in ("ollama", "transformers"):
         return 0
     return config.API_DELAY_SECONDS
 
@@ -44,8 +76,14 @@ def get_model_string(model_key):
 
 def classify_image(client, image_path, model_key=None):
     model_key = model_key or config.DEFAULT_MODEL
-    model_str = get_model_string(model_key)
     model_info = config.MODEL_REGISTRY[model_key]
+
+    # ── Transformers backend (defensive tokens) ────────────────
+    if model_info["backend"] == "transformers":
+        return client.classify(image_path, use_defense=True)
+
+    # ── Ollama / Groq backend ──────────────────────────────────
+    model_str = get_model_string(model_key)
     image_path = Path(image_path)
 
     img_bytes = image_path.read_bytes()
@@ -77,19 +115,11 @@ def classify_image(client, image_path, model_key=None):
         }
     ]
 
-    if model_info["backend"] == "groq":
-        response = client.chat.completions.create(
-            model=model_str,
-            messages=messages,
-            max_tokens=50,
-        )
-    else:
-        # Ollama / OpenAI-compatible
-        response = client.chat.completions.create(
-            model=model_str,
-            messages=messages,
-            max_tokens=50,
-        )
+    response = client.chat.completions.create(
+        model=model_str,
+        messages=messages,
+        max_tokens=50,
+    )
 
     raw = response.choices[0].message.content.strip() if response.choices else ""
     return raw
