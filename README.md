@@ -34,6 +34,9 @@
 - `src/score_asr.py` computes ASR by checking whether the target word appears in the model output for each condition.
 - It reports overall ASR, per-factor marginal ASR, and switch-on factor impact (`delta_asr` + relative importance) across word, placement, and contrast.
 
+Kaggle dataset link:
+https://www.kaggle.com/datasets/awsaf49/coco-2017-dataset. I downloaded it locally and the functions assume it is in the path ~/data/coco/train2017
+
 ## 📌 Project Summary
 Spectra explores how imperceptible visual prompt injections can manipulate vision-language models, and how those attacks can be detected and mitigated. As multimodal models are increasingly deployed in autonomous agents, browsers, and decision-support tools, their reliance on visual inputs introduces security risks that cannot be addressed by traditional text-based safeguards alone. As OpenAI CEO Sam Altman has noted, “A whole new paradigm would be needed to solve prompt injections 10/10 times… it may well be that LLMs can never be used for certain purposes.” By systematically probing how Large Vision-Language Models (LVLMs) interpret visual inputs beyond human perception, this project aims to expose a critical and underexplored attack surface in modern AI systems. Participants will conduct hands-on deep learning and adversarial research by designing and implementing visual prompt injection techniques, benchmarking attack success across model architectures and visual parameters, and developing mitigation strategies such as input sanitization, prompt conditioning, adversarial training, and synthetic data augmentation through neural networks.
 
