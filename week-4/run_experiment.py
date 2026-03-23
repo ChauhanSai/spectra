@@ -140,6 +140,10 @@ def run_experiment(cfg: dict | None = None) -> None:
     print(f"Phrasings: {len(injection_phrases)} variants" if injection_phrases else "Baseline only (no injection)")
 
     image_list = collect_image_paths(dataset_root, max_images)
+    skip_first = int(cfg.get("skip_first", 0))
+    if skip_first > 0:
+        image_list = image_list[skip_first:]
+        print(f"Skipping first {skip_first} images")
     print(f"Found {len(image_list)} images.")
     if not image_list:
         print("No images found. Check dataset_root and class folders.")
