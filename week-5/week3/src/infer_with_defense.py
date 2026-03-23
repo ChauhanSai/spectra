@@ -21,7 +21,7 @@ import torch
 from tqdm import tqdm
 from defenses import get_defense_prompt
 
-RESULTS_DIR = "outputs/results"
+RESULTS_DIR = "../outputs/results"
 FLUSH_EVERY = 50
 
 
@@ -171,7 +171,7 @@ def coerce_to_one_word(text):
     return "unknown"
 
 
-def find_all_image_dirs(base="outputs/attacked"):
+def find_all_image_dirs(base="../outputs/attacked"):
     pattern = os.path.join(base, "*", "images")
     return sorted(glob.glob(pattern))
 
