@@ -6,6 +6,7 @@ from PIL import Image
 
 from . import security_policy
 from . import defensive_token
+from . import prompt_separation
 
 
 DefenseFn = Callable[[Image.Image, str], Image.Image]
@@ -21,6 +22,8 @@ def get_defense(name: Optional[str]) -> DefenseFn:
         return security_policy.apply_security_policy
     if nid in ("defensive_token", "defense_token", "defense_tokens"):
         return defensive_token.apply_defensive_token
+    if nid in ("prompt_separation", "struq", "structured_query"):
+        return prompt_separation.apply_prompt_separation
     return _noop
 
 
@@ -31,4 +34,6 @@ def get_policy_prompt(name: Optional[str]) -> str | None:
         return security_policy.get_policy_prompt()
     if nid in ("defensive_token", "defense_token", "defense_tokens"):
         return defensive_token.get_defense_prompt()
+    if nid in ("prompt_separation", "struq", "structured_query"):
+        return prompt_separation.get_separation_prompt()
     return None

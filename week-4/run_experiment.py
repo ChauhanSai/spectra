@@ -40,7 +40,7 @@ CONFIG = {
     "results_csv": Path("results.csv"),
     "save_injected_images": True,
     "injected_images_dir": Path("injected_images"),
-    "defense": "defensive_token",
+    "defense": "prompt_separation",
 }
 
 VALID_CLASSES = frozenset({"glioma_tumor", "meningioma_tumor", "no_tumor", "pituitary_tumor"})
