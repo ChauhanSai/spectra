@@ -4,6 +4,15 @@ import sys
 import os
 
 
+def majority_vote(preds):
+    """Return the most common string in preds."""
+    if not preds:
+        return "unknown"
+    counts = {}
+    for p in preds:
+        counts[p] = counts.get(p, 0) + 1
+    return max(counts.items(), key=lambda x: x[1])[0]
+
 
 def apply_transformations(img):
     """Return a list of three variants: blur, noise, and rotated."""

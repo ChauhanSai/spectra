@@ -51,6 +51,10 @@ def asr_from_hits_total(hits, total):
     return hits / total
 
 
+def format_asr_percent(hits, total):
+    return f"{asr_from_hits_total(hits, total) * 100:.2f}% ({hits}/{total})"
+
+
 def compute_factor_level_stats(rows, factor_name):
     stats = {level: {"hits": 0, "total": 0} for level in FACTORS[factor_name]}
     for row in rows:
@@ -96,21 +100,19 @@ def main():
         print("No valid ASR results.")
         return
 
-    overall_asr = asr_from_hits_total(overall_hits, overall_total)
+    overall_asr = format_asr_percent(overall_hits, overall_total)
     print("=" * 72)
-    print(f"OVERALL ASR: {overall_asr:.4f} ({overall_hits}/{overall_total})")
+    print(f"OVERALL ASR: {overall_asr}")
     print("=" * 72)
 
     print("\nPer-factor marginal ASR:")
     print("-" * 72)
     for factor in FACTORS:
         level_stats = compute_factor_level_stats(rows, factor)
-        print(f"{factor}:")
         for level in FACTORS[factor]:
             hits = level_stats[level]["hits"]
             total = level_stats[level]["total"]
-            asr = asr_from_hits_total(hits, total)
-            print(f"  {level:<14} ASR={asr:.4f} ({hits}/{total})")
+            print(f"{level}: {format_asr_percent(hits, total)}")
 
     print()
 
