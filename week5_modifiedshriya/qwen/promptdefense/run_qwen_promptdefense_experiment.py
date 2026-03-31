@@ -145,6 +145,7 @@ def run_experiment(cfg: dict | None = None) -> None:
 
     rows: list[dict] = []
     flip_counts: dict[tuple[str, str], int] = {}
+    image_times_seconds: list[float] = []
     fieldnames = ["image_path", "true_label", "baseline_pred", "phrasing", "injected_pred", "flip", "targeted_success"]
 
     with open(results_path, "w", newline="", encoding="utf-8") as f:
@@ -152,6 +153,7 @@ def run_experiment(cfg: dict | None = None) -> None:
         writer.writeheader()
 
         for img_idx, (path, true_label) in enumerate(tqdm(image_list, desc="Qwen PromptDefense", unit="img"), 1):
+            image_start = time.perf_counter()
             img = load_image_safe(path)
             if img is None:
                 continue
@@ -224,16 +226,23 @@ def run_experiment(cfg: dict | None = None) -> None:
                 if flip and baseline_pred != "unknown":
                     key = (baseline_pred, injected_pred)
                     flip_counts[key] = flip_counts.get(key, 0) + 1
+            image_times_seconds.append(time.perf_counter() - image_start)
 
     valid_rows = [r for r in rows if r["baseline_pred"] != "unknown"]
     total = len(valid_rows)
     by_image = {r["image_path"]: r for r in rows}
     n_images = len(by_image)
     n_correct = sum(1 for r in by_image.values() if r["baseline_pred"] == r["true_label"])
+    avg_seconds_per_image = (
+        sum(image_times_seconds) / len(image_times_seconds)
+        if image_times_seconds
+        else 0.0
+    )
 
     print("\n--- Qwen PromptDefense Metrics ---")
     print(f"Placement: {position}  |  Contrast: {contrast or 'opacity-only'}")
     print(f"Total rows (images x phrasings): {total}")
+    print(f"Average seconds per image: {avg_seconds_per_image:.2f}s")
     print(f"Baseline accuracy (model vs ground truth): {n_correct}/{n_images} ({100.0 * n_correct / n_images:.1f}%)")
 
     if total:

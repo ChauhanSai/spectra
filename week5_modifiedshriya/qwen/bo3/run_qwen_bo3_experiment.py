@@ -229,12 +229,14 @@ def run_experiment(cfg: dict | None = None) -> None:
     ]
     rows: list[dict] = []
     flip_counts: dict[tuple[str, str], int] = {}
+    image_times_seconds: list[float] = []
 
     with open(results_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
 
         for trial in tqdm(trial_plan, desc="Qwen BO3", unit="trial"):
+            trial_start = time.perf_counter()
             trial_id = trial["trial_id"]
             path = Path(trial["image_path"])
             true_label = trial["true_label"]
@@ -303,15 +305,22 @@ def run_experiment(cfg: dict | None = None) -> None:
             if flip and baseline_pred != "unknown":
                 key = (baseline_pred, injected_pred)
                 flip_counts[key] = flip_counts.get(key, 0) + 1
+            image_times_seconds.append(time.perf_counter() - trial_start)
 
     valid_rows = [r for r in rows if r["baseline_pred"] != "unknown"]
     total = len(valid_rows)
     n_trials = len(rows)
     n_correct = sum(1 for r in rows if r["baseline_pred"] == r["true_label"])
+    avg_seconds_per_image = (
+        sum(image_times_seconds) / len(image_times_seconds)
+        if image_times_seconds
+        else 0.0
+    )
 
     print("\n--- Qwen + BO3 Metrics ---")
     print(f"Total attack trials: {n_trials}")
     print(f"Valid attack trials: {total}")
+    print(f"Average seconds per image: {avg_seconds_per_image:.2f}s")
     print(f"Baseline accuracy (BO3 vs ground truth): {n_correct}/{n_trials} ({100.0 * n_correct / n_trials:.1f}%)")
     if total:
         num_flips = sum(1 for r in valid_rows if r["flip"])

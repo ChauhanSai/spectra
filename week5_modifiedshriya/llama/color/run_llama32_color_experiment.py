@@ -18,7 +18,7 @@ if str(ROOT) not in sys.path:
 from inject import inject_text
 
 from colorvote import predict_with_color_vote
-from gemma3_local import predict_label
+from llama32_local import predict_label
 
 load_dotenv()
 
@@ -43,9 +43,9 @@ CONFIG = {
     "contrasts": ["low_contrast", "medium_contrast", "high_contrast"],
     "api_delay_seconds": 0.0,
     "api_max_retries": 1,
-    "results_csv": Path("results_gemma3_color.csv"),
+    "results_csv": Path("results_llama32_color.csv"),
     "save_injected_images": False,
-    "injected_images_dir": Path("injected_images_gemma3_color"),
+    "injected_images_dir": Path("injected_images_llama32_color"),
 }
 
 
@@ -160,7 +160,7 @@ def run_experiment(cfg: dict | None = None) -> None:
         for contrast in contrasts
     ]
 
-    print("Model: gemma3 local")
+    print("Model: llama3.2 local")
     print("Device: cuda (required)")
     print("Defense: baseline single prediction, attacked image uses color voting")
     print(f"Position: {position}")
@@ -217,7 +217,7 @@ def run_experiment(cfg: dict | None = None) -> None:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
 
-        for trial in tqdm(trial_plan, desc="Gemma3 Color", unit="trial"):
+        for trial in tqdm(trial_plan, desc="Llama32 Color", unit="trial"):
             trial_start = time.perf_counter()
             trial_id = trial["trial_id"]
             path = Path(trial["image_path"])
@@ -294,7 +294,7 @@ def run_experiment(cfg: dict | None = None) -> None:
         else 0.0
     )
 
-    print("\n--- Gemma3 + Color Metrics ---")
+    print("\n--- Llama32 + Color Metrics ---")
     print(f"Total attack trials: {n_trials}")
     print(f"Valid attack trials: {total}")
     print(f"Average seconds per image: {avg_seconds_per_image:.2f}s")
