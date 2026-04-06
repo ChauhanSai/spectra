@@ -166,8 +166,7 @@ def run_experiment(cfg: dict | None = None) -> None:
 
     rows: list[dict] = []
     flip_counts: dict[tuple[str, str], int] = {}
-    fieldnames = ["image_path", "true_label", "baseline_pred", "phrasing", "injected_pred", "flip", "targeted_success", "timing_seconds"]
-    image_times: list[float] = []
+    fieldnames = ["image_path", "true_label", "baseline_pred", "phrasing", "injected_pred", "flip", "targeted_success"]
 
     with open(results_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -177,8 +176,6 @@ def run_experiment(cfg: dict | None = None) -> None:
             img = load_image_safe(path)
             if img is None:
                 continue
-
-            img_start_time = time.time()
 
             n_imgs = len(image_list)
             print(f"  [{img_idx}/{n_imgs}] Baseline (may take 1–3 min on CPU)...", flush=True, file=sys.stderr)
@@ -255,9 +252,6 @@ def run_experiment(cfg: dict | None = None) -> None:
                     "flip": flip,
                     "targeted_success": targeted_success,
                 }
-                img_elapsed = time.time() - img_start_time
-                image_times.append(img_elapsed)
-                row["timing_seconds"] = round(img_elapsed, 3)
                 rows.append(row)
                 writer.writerow(row)
 
@@ -306,25 +300,6 @@ def run_experiment(cfg: dict | None = None) -> None:
     print("\nLabel flip distribution (baseline -> injected):")
     for (b, i), count in sorted(flip_counts.items(), key=lambda x: -x[1]):
         print(f"  {b} -> {i}: {count}")
-
-    # ── Timing summary ──
-    if image_times:
-        avg_time = sum(image_times) / len(image_times)
-        total_time = sum(image_times)
-        print(f"\n--- Timing ---")
-        print(f"Total images timed: {len(image_times)}")
-        print(f"Total runtime: {total_time:.1f}s")
-        print(f"Avg time per image: {avg_time:.2f}s")
-        print(f"Min / Max: {min(image_times):.2f}s / {max(image_times):.2f}s")
-
-    # ── Defense accuracy (correct despite attack) ──
-    defended_correct = sum(
-        1 for r in valid_rows
-        if r["injected_pred"] == r["true_label"]
-    )
-    print(f"\n--- Defense Accuracy ---")
-    print(f"Correctly classified despite injection: {defended_correct}/{total} ({100.0 * defended_correct / total:.1f}%)")
-
     print(f"\nResults written to: {results_path}")
 
 
